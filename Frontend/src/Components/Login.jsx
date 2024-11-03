@@ -1,0 +1,49 @@
+import React from 'react'
+import { Form,Input,Button, message } from "antd";
+import { Link } from 'react-router-dom';
+const Login = () => {
+  return (
+    <header className='App-header'>
+            <main className='main-area mw-500 text-center px-3'> 
+                <section >
+                    <h1>Register to BookMyShow</h1>
+                </section>
+                <section>
+                    
+                    <Form layout="vertical">
+                        <Form.Item label="Email" 
+                        htmlFor="email" 
+                        name="email" 
+                        className="d-block"
+                        rules={[{required:true,message:"Email is required"}]}>
+                        
+                            <Input id="email" 
+                            type='text'
+                            placeholder='Enter your email'></Input>
+                        </Form.Item>
+                    </Form>
+                    <Form layout="vertical">
+                        <Form.Item label="Password" 
+                        htmlFor="password" 
+                        name="password" 
+                        className="d-block"
+                        rules={[{required:true,message:"Password is required"}]}>
+                        
+                            <Input id="password" 
+                            type='password'
+                            placeholder='Enter your password'></Input>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button type='primary' block htmlFor="submit" style={{fontSize:"1rem",fontWeight:"600"}}>Register</Button>
+                        </Form.Item>
+                    </Form>
+                </section>
+                <section>
+                    <p>New User?<Link to="/register">Register Now</Link></p>
+                </section>
+            </main>
+        </header>
+  )
+}
+
+export default Login
