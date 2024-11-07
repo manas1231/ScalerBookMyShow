@@ -1,5 +1,6 @@
 const userModel=require("../models/userSchema")
-
+const bcrypt=require("bcrypt");//Used for password hashing 
+const jwt=require("jsonwebtoken");
 const registerUser= async(req,res)=>{
     try{
         const userExists=await userModel.findOne({email:req?.body?.email})
@@ -9,6 +10,11 @@ const registerUser= async(req,res)=>{
                 message:"User already Exists"
             });
         }
+        //creating salt
+        const salt=await bcrypt.genSalt(10);
+        //Can generally create salt upto 2^10 characters.More the characters more time it takes
+        const hashedPasword=await bcrypt.hash(req?.body?.password,salt);
+        req.body.password=hashedPasword
         const newUser=new userModel(req?.body);
         await newUser.save();
         res.send({
@@ -32,22 +38,43 @@ const loginUser=async(req,res)=>{
                 message:"User does not exist.Please Register"
             });
         }
-        if(req?.body?.password!==userExists?.password){
+        const validatePassword=await bcrypt.compare(req?.body?.password,userExists.password)
+        if(!validatePassword){
             return res.send({
                 success:false,
                 message:"Please enter valid password"
             })
         }
+        const token=jwt.sign({userId: userExists._id},process.env.SECRET_KEY,{
+            expiresIn:"1d",
+        });
         res.send({
             success:true,
-            message:"Please enter valid password"
+            message:"You have successfully logged in",
+            data:token
         })
     }catch(error){
         console.log(error);
     }
 }
 
+const currentUser=async (req,res)=>{
+    try {
+        const user = await userModel.findById(req.body.userId).select("-password");
+        res.send({
+          success: true,
+          message: "User Details Fetched Successfully",
+          data: user,
+        });
+      } catch (error) {
+        res.send({
+          success: false,
+          message: error.message,
+        });
+      }
+}
 module.exports={
     registerUser,
-    loginUser
+    loginUser,
+    currentUser
 };

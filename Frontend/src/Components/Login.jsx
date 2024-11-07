@@ -1,16 +1,44 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import { Form,Input,Button, message } from "antd";
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
+import { LoginUser } from '../api/user';
+import { useDispatch } from 'react-redux';
+import { hideLoading, showLoading } from '../../redux/loaderSlice';
 const Login = () => {
+    const navigate=useNavigate();
+    const dispatch=useDispatch();
+    useEffect(() => {
+        if (localStorage.getItem("tokenForBMS")) {
+          navigate("/", { replace: true });
+        }
+      }, []);
+    const handleFinish =async (values) => {
+        console.log(values);
+        try{
+            dispatch(showLoading());
+            const response=await LoginUser(values);
+            if(response?.success)
+            {
+                message.success(response?.message)
+                localStorage.setItem("tokenForBMS",response?.data);
+                navigate("/")
+            }
+        }catch(error){
+            message.error(response?.message)
+            console.log(error);
+        }finally{
+            dispatch(hideLoading())
+        }
+    };
   return (
     <header className='App-header'>
             <main className='main-area mw-500 text-center px-3'> 
                 <section >
-                    <h1>Register to BookMyShow</h1>
+                    <h1>Login to BookMyShow</h1>
                 </section>
                 <section>
                     
-                    <Form layout="vertical">
+                    <Form layout="vertical" onFinish={handleFinish}>
                         <Form.Item label="Email" 
                         htmlFor="email" 
                         name="email" 
@@ -21,8 +49,7 @@ const Login = () => {
                             type='text'
                             placeholder='Enter your email'></Input>
                         </Form.Item>
-                    </Form>
-                    <Form layout="vertical">
+                    
                         <Form.Item label="Password" 
                         htmlFor="password" 
                         name="password" 
@@ -34,7 +61,7 @@ const Login = () => {
                             placeholder='Enter your password'></Input>
                         </Form.Item>
                         <Form.Item>
-                            <Button type='primary' block htmlFor="submit" style={{fontSize:"1rem",fontWeight:"600"}}>Register</Button>
+                            <Button type='primary' block htmlType="submit" style={{fontSize:"1rem",fontWeight:"600"}}>Login</Button>
                         </Form.Item>
                     </Form>
                 </section>
